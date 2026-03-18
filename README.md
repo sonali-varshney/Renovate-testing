@@ -62,4 +62,144 @@ Detected Dependencies
 maven (1)
 npm (1)
 
+				Basic renovate.json
+
+
+{
+  "extends": ["config:base"]
+}
+
+config:base me already defined hota h:
+dependency scanning
+PR createion
+semantic commits
+PR limits
+
+extends means reuse preset configurations
+
+			Config for Docker
+			
+{
+  "extends": ["config:base"]
+  "docker": {
+    "enabled: true
+  }
+}
+
+
+			Config for Terraform
+			
+{
+  "extends": ["config:base"]
+  "terraform": {
+    "enabled: true
+  }
+}
+
+			Grouping rules config
+			
+agr 10 dependencies h  -> 10 PR
+But with grouping, 1 PR bnega for 10 deependecies. You can group based on package Manager, major/minor/patch version update.
+
+Eg of grouping ruls config based on package Manager
+
+{
+  "extends": ["config:base"]
+  "packageRules": [
+    {
+      "matchManagers": ["npm"],
+      "groupName": "all npm dependencies"
+    }
+  ]
+}
+
+Result iska kya hoga? 1 PR raise hoga jiska naam hoga-> Update <groupName> -> Update all npm dependencies
+
+Eg of grouping ruls config based on package Manager
+
+{
+  "extends": ["config:base"]
+  "packageRules": [
+    {
+      "matchManagers": ["npm"],
+      "groupName": "npm dependencies"
+    },
+	{
+      "matchManagers": ["maven"],
+      "groupName": "maven related dependencies"
+    }
+  ]
+}
+
+Eg of grouping ruls config based on  major/minor/patch version update.
+
+{
+  "extends": ["config:base"]
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor","patch"],
+      "groupName": "non-major dependencies"
+    }
+  ]
+}
+
+Result iska kya hoga? 1 PR raise hoga jiska naam hoga-> Update <groupName> -> Update non-major dependencies
+
+			
+			Advance Config
+			
+{
+  "extends": ["config:base"],
+  "schedule": ["before 5am on Monday"],      #scheduling
+  "prHourlyLimit": 2,       				 # ek ghnte me max 2 PR
+  "automerge": true,						 # agr tests pass ho jae, PR autoatically merge ho jaega
+  "enabledManagers": [						 #sirf ye managers scan honge. terraform ignore hoga
+    "maven",
+	"dockerfile",
+	"npm"
+	],
+  "packageRules": [							#decides dependency updayte ka behaviour
+    {
+      "matchManagers": ["npm"],				#kon si file scan ho
+      "groupName": "all npm dependencies"
+    }
+  ]
+}
+
+			
+		Why we dont write 
+			
+{
+  "extends": ["config:base"]
+  "maven": {
+    "enabled: true
+  }
+}
+
+as we write 
+{
+  "extends": ["config:base"]
+  "terraform": {
+    "enabled: true
+  }
+}	
+
+bcz when we use config:base, by default renovate Maven,npm,docker ,terraform sb manager ko detect kr leta h. So if you want an explicit control then you cn mention the package manager like future me disable krna h enable krna h..In that case you can mention expliciltly jaise terraform mention kiya
+
+File          Manager detect hpoga
+pom.xml				Maven
+package.json		npm
+Dockerfile			docker
+*.tf				terraform
+
+
+
+
+		
+			Real devops pipeline architecture
+
+Developer -> push to github -> Renovate/Dependabot -> PR -> CI pipeline (Github Actions me build,unit test,sonarqube,jfrog) -> Tests run -> Security Scan -> Merge -> Deployment
+
+
+
 ************
